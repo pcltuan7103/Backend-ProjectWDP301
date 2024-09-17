@@ -4,6 +4,7 @@ const cors = require("cors");
 const cookie_parser = require("cookie-parser");
 const connection = require("./config/database");
 const authRoutes = require("./routes/authApi");
+const userRoutes = require("./routes/userApi");
 const Role = require("./models/Role");
 
 const app = express();
@@ -16,6 +17,7 @@ app.use(express.urlencoded({ extended: true })); // for form data
 
 //Routes
 app.use("/v1/api/", authRoutes);
+app.use("/v1/api/", userRoutes);
 
 (async () => {
   try {
