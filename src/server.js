@@ -17,7 +17,7 @@ app.use(express.urlencoded({ extended: true })); // for form data
 
 //Routes
 app.use("/v1/api/", authRoutes);
-app.use("/v1/api/", userRoutes);
+app.use("/v1/api/users", userRoutes);
 
 (async () => {
   try {

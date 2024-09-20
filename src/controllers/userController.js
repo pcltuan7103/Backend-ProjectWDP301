@@ -2,6 +2,7 @@ const {
   getProfileUserService,
   updateUserService,
 } = require("../services/userService");
+const User = require("../models/User");
 
 const getProfileUser = async (req, res) => {
   const userId = req.params.id;
@@ -20,23 +21,32 @@ const getProfileUser = async (req, res) => {
 // Controller to update username by user ID
 const updateUser = async (req, res) => {
   try {
-    const { userId, newUsername } = req.body;
+    const userId = req.params.id;
+    const { username } = req.body;
 
-    // Validate input
-    if (!userId || !newUsername) {
-      return res
-        .status(400)
-        .json({ message: "User ID and new username are required" });
+    if (!username) {
+      return res.status(400).json({ message: "Username is required" });
     }
 
-    // Call the service to update the username
-    const updatedUser = await updateUserService(userId, newUsername);
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      { username },
+      { new: true, runValidators: true }
+    );
 
-    // Respond with the updated user object
-    res.status(200).json(updatedUser);
+    if (!updatedUser) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.status(200).json({
+      message: "User updated successfully",
+      username: updatedUser.username,
+    });
   } catch (error) {
-    // Handle errors and send an appropriate response
-    res.status(500).json({ message: error.message });
+    console.error("Error updating user:", error); // Log full error for debugging
+    res
+      .status(500)
+      .json({ message: "Error updating user", error: error.message || error });
   }
 };
 
