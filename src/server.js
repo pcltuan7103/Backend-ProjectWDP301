@@ -6,6 +6,9 @@ const connection = require("./config/database");
 const authRoutes = require("./routes/authApi");
 const userRoutes = require("./routes/userApi");
 const Role = require("./models/Role");
+const guestRouter = require('./routes/guestRouter');
+const recruiterRouter = require("./routes/recruiterRouter");
+const adminRouter = require('./routes/adminRouter');
 
 const app = express();
 const port = process.env.PORT || 8888;
@@ -18,6 +21,9 @@ app.use(express.urlencoded({ extended: true })); // for form data
 //Routes
 app.use("/v1/api/", authRoutes);
 app.use("/v1/api/users", userRoutes);
+app.use("/", guestRouter);
+app.use("/", recruiterRouter);
+app.use("/", adminRouter);
 
 (async () => {
   try {
