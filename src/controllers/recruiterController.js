@@ -73,6 +73,46 @@ const createJob = async (req, res) => {
     }
 };
 
+const getJobById = async (req, res) => {
+    const { id } = req.params; // Get the job ID from the request parameters
+
+    try {
+        // Find the job by ID
+        const job = await Job.findById(id)
+
+        if (!job) {
+            return res.status(404).json({ message: 'Job not found' });
+        }
+
+        return res.status(200).json({ job });
+    } catch (error) {
+        console.error("Error fetching job by ID:", error);
+        return res.status(500).json({ message: 'Server error', error });
+    }
+};
+
+const updateJob = async (req, res) => {
+    const { id } = req.params;
+    const updatedData = req.body;
+
+    try {
+        // Find the job by ID and update it
+        const updatedJob = await Job.findByIdAndUpdate(id, updatedData, {
+            new: true, // Return the updated document
+            runValidators: true // Validate the update against the schema
+        });
+
+        if (!updatedJob) {
+            return res.status(404).json({ message: 'Job not found' });
+        }
+
+        res.status(200).json({ message: 'Job updated successfully', job: updatedJob });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Error updating job', error: error.message });
+    }
+};
+
 // tao moi mot company:
 const createCompany = async (req, res) => {
     const {
@@ -469,6 +509,24 @@ const getAcceptedPublicJobs = async (req, res) => {
     }
 };
 
+const deleteJob = async (req, res) => {
+    const jobId = req.params.id;
+
+    try {
+        // Find and delete the job
+        const deletedJob = await Job.findByIdAndDelete(jobId);
+
+        if (!deletedJob) {
+            return res.status(404).json({ message: 'Job not found' });
+        }
+
+        res.status(200).json({ message: 'Job deleted successfully', deletedJob });
+    } catch (error) {
+        console.error('Error deleting job:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+}
+
 module.exports = {
     createJob,
     jobList,
@@ -481,5 +539,8 @@ module.exports = {
     filterJobByProfession,
     getJobsByEmployerId,
     getUnacceptedPublicJobs,
-    getAcceptedPublicJobs
+    getAcceptedPublicJobs,
+    getJobById,
+    updateJob,
+    deleteJob
 };
