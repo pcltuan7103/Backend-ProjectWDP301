@@ -1,11 +1,14 @@
 const express = require('express');
 const Job = require('../models/Job');
-const {createJob, jobList, getJob_CompanyList, createCompany, searchJob, filterJobByLocation, filterJobBySalary, filterJobByExperience, filterJobByProfession} = require('../controllers/recruiterController');
+const {createJob, jobList, getJob_CompanyList, createCompany, searchJob, filterJobByLocation, filterJobBySalary, filterJobByExperience, filterJobByProfession, getJobsByEmployerId, getUnacceptedPublicJobs, getAcceptedPublicJobs} = require('../controllers/recruiterController');
 
 const recruiterRouter = express.Router();
 
 // Route tao moi mot job:
 recruiterRouter.post('/job/create', createJob);
+recruiterRouter.get('/jobs/employer/:employerId', getJobsByEmployerId);
+recruiterRouter.get('/jobs/no-public', getUnacceptedPublicJobs)
+recruiterRouter.get('/jobs/public', getAcceptedPublicJobs)
 
 // route tao moi mot company:
 recruiterRouter.post('/company/create', createCompany);

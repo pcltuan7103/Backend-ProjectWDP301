@@ -10,8 +10,13 @@ const JobSchema = new mongoose.Schema({
         required: true
     },
     companyId: {
-        type: mongoose.Schema.Types.ObjectId, // Liên kết với _id của Company
+        type: mongoose.Schema.Types.ObjectId,
         ref: 'Company',
+        required: true
+    },
+    employerId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
         required: true
     },
     requirement: {
@@ -64,6 +69,10 @@ const JobSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Profession',
         required: true
+    },
+    isPublic: {
+        type: Boolean,
+        default: false,
     }
 });
 

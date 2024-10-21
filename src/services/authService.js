@@ -159,10 +159,50 @@ const logoutService = async (refresh_token) => {
   }
 };
 
+const registerAdminUserService = async (email, password, username) => {
+  try {
+    // Check if the email already exists
+    const existingUserByEmail = await User.findOne({ email });
+    if (existingUserByEmail) {
+      console.log("User with this email already exists");
+      return { error: "User with this email already exists" };
+    }
+
+    // Validate required fields
+    if (!email || !password || !username) {
+      throw new Error("All fields are required");
+    }
+
+    // Hash the password before saving
+    const hashPassword = await bcrypt.hash(password, saltRounds);
+
+    // Find the role 'admin'
+    const adminRole = await Role.findOne({ name: "admin" });
+    if (!adminRole) {
+      return { error: "Admin role not found" };
+    }
+
+    // Create the new admin user
+    const newAdminUser = await User.create({
+      email,
+      password: hashPassword,
+      username,
+      role: [adminRole._id], // Assign the 'admin' role
+    });
+
+    return newAdminUser;
+  } catch (error) {
+    console.log("Error:", error);
+    return { error: "An error occurred during admin registration" };
+  }
+};
+
+
 module.exports = {
   registerUserService,
   loginService,
   registerEmployerService,
   refreshAccessToken,
   logoutService,
+  registerAdminUserService
 };

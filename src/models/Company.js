@@ -1,26 +1,35 @@
-const mongoose = require('mongoose');
+const { type } = require("express/lib/response");
+const mongoose = require("mongoose");
 
 const CompanySchema = new mongoose.Schema({
     name: {
         type: String,
-        required: true
+        required: true,
     },
     logo: {
         type: String,
-        required: true
+        required: true,
     },
     website: {
-        type: String
+        type: String,
     },
     number_of_employee: {
-        type: Number
+        type: Number,
     },
     introduction: {
-        type: String
+        type: String,
     },
     location: {
-        type: String
-    }
+        type: String,
+    },
+    isPublic: {
+        type: Boolean,
+        default: false,
+    },
+    employer: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+    },
 });
 
-module.exports = mongoose.model('Company', CompanySchema);
+module.exports = mongoose.model("Company", CompanySchema);

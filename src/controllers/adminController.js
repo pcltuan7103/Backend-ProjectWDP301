@@ -1,4 +1,28 @@
+const Job = require('../models/Job');
 const Profession = require('../models/Profession');
+
+const acceptJob = async (req, res) => {
+    const { id } = req.params; // Get the job ID from the request parameters
+
+    try {
+        // Find the job by ID and update the isPublic field
+        const job = await Job.findByIdAndUpdate(
+            id,
+            { isPublic: true }, // Set isPublic to true
+            { new: true } // Return the updated document
+        );
+
+        // Check if job was found and updated
+        if (!job) {
+            return res.status(404).json({ message: 'Job not found' });
+        }
+
+        return res.status(200).json({ message: 'Job accepted successfully', job });
+    } catch (error) {
+        console.error("Error accepting job:", error);
+        return res.status(500).json({ message: 'Server error', error });
+    }
+};
 
 // endpoint add a new profession:
 const addProfession = async (req, res) => {
@@ -33,4 +57,4 @@ const getListProfession = async(req, res) => {
     }
 };
 
-module.exports = {addProfession, getListProfession};
+module.exports = {addProfession, getListProfession, acceptJob};

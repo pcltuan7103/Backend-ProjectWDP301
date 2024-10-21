@@ -4,6 +4,7 @@ const {
   loginService,
   refreshAccessToken,
   logoutService,
+  registerAdminUserService,
 } = require("../services/authService");
 
 const registerUser = async (req, res) => {
@@ -12,6 +13,26 @@ const registerUser = async (req, res) => {
 
     // Gọi service để thực hiện logic đăng ký người dùng
     const data = await registerUserService(email, password, username);
+
+    // Kiểm tra phản hồi từ service
+    if (data.error) {
+      return res.status(400).json({ message: data.error });
+    }
+
+    return res
+      .status(201)
+      .json({ message: "User registered successfully", data });
+  } catch (error) {
+    return res.status(500).json({ message: "Server error", error });
+  }
+};
+
+const registerAdmin = async (req, res) => {
+  try {
+    const { email, password, username } = req.body;
+
+    // Gọi service để thực hiện logic đăng ký người dùng
+    const data = await registerAdminUserService(email, password, username);
 
     // Kiểm tra phản hồi từ service
     if (data.error) {
@@ -87,4 +108,5 @@ module.exports = {
   refreshToken,
   logout,
   getAccount,
+  registerAdmin
 };
