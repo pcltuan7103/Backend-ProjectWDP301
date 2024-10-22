@@ -3,6 +3,8 @@ const Application = require('../models/Application');
 const User = require("../models/User");
 const Report = require('../models/Report');
 const Favorite = require('../models/Favorite');
+const Job = require('../models/Job');
+const Feedback = require('../models/Feedback');
 const { mongo } = require("mongoose");
 const multer = require('multer');
 const storage = multer.memoryStorage();
@@ -75,7 +77,7 @@ const createReport = async (req, res) => {
 
 const applyJob = async (req, res) => {
   try {
-    const { introduction } = req.body;
+    const { introduction, userId } = req.body;
     const jobId = req.query.jobId;
 
     if (!req.file) {
@@ -84,9 +86,11 @@ const applyJob = async (req, res) => {
 
     const newApplication = new Application({
       introduction,
+      userId,
       cv: req.file.buffer, // Lưu buffer của file
       jobId,
     });
+    console.log('New application: ', newApplication);
 
     await newApplication.save();
     return res.status(201).json({ message: 'Đơn ứng tuyển đã được gửi thành công!' });
@@ -152,7 +156,7 @@ const deleteFavorite = async (req, res) => {
 
   try {
     const favorite = await Favorite.findById(favoriteId);
-  
+
     if (!favorite) {
       return res.status(404).json({ message: "Mục yêu thích không tồn tại." });
     }
@@ -165,4 +169,34 @@ const deleteFavorite = async (req, res) => {
   }
 };
 
-module.exports = { getProfileUser, updateUser, createReport, applyJob, markFavorite, getFavorite, deleteFavorite };
+//get sl cviec va tg cap nhat
+const getJob_updateTime = async (req, res) => {
+  try {
+    const totalJobs = await Job.countDocuments();
+    const updatedAt = new Date();
+
+    res.json({
+      positions: totalJobs,
+      updatedAt: updatedAt
+    });
+  } catch (error) {
+    console.error('Server error:', error);
+    res.status(500).json({ error: 'Server error' });
+  }
+};
+
+//feedback
+const addFeedback = async (req, res) => {
+  try {
+    const { userId, feedbackName, description } = req.body;
+    const createdAt = new Date();
+    const feedback = new Feedback({ userId, feedbackName, description, createdAt });
+    await feedback.save();
+    res.status(201).send({ message: 'Feedback submitted successfully!' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send({ message: 'Server error' });
+  }
+};
+
+module.exports = { getProfileUser, updateUser, createReport, applyJob, markFavorite, getFavorite, deleteFavorite, getJob_updateTime, addFeedback };

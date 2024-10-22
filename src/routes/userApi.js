@@ -1,6 +1,6 @@
 const express = require("express");
 const authorize = require("../middlewares/authorize");
-const { getProfileUser, updateUser, createReport, applyJob, markFavorite, getFavorite, deleteFavorite } = require("../controllers/userController");
+const { getProfileUser, updateUser, createReport, applyJob, markFavorite, getFavorite, deleteFavorite, getJob_updateTime, addFeedback } = require("../controllers/userController");
 const User = require("../models/User");
 const multer = require('multer');
 const upload = multer({ storage: multer.memoryStorage() });
@@ -24,5 +24,11 @@ routerApi.get('/favorite', getFavorite);
 
 // bo luu tin:
 routerApi.delete('/favorite/:favoriteId', deleteFavorite);
+
+//get sl job vs tg update:
+routerApi.get('/job-stats', getJob_updateTime);
+
+//feedback
+routerApi.post('/feedback', addFeedback);
 
 module.exports = routerApi;
