@@ -67,14 +67,14 @@ const getJob_CompanyList = async (req, res) => {
         const jobs = await Job.aggregate([
             {
                 $lookup: {
-                    from: 'companies', // Tên collection của công ty
-                    localField: 'companyId', // Trường reference từ Job đến Company
-                    foreignField: '_id', // Trường _id của Company để nối
+                    from: 'companies',
+                    localField: 'companyId',
+                    foreignField: '_id', 
                     as: 'companyDetails'
                 }
             },
             {
-                $unwind: '$companyDetails' // Tách mảng companyDetails để dễ xử lý
+                $unwind: '$companyDetails' 
             },
             // {
             //     $project: {
@@ -108,14 +108,14 @@ const filterJobByLocation = async (req, res) => {
             },
             {
                 $lookup: {
-                    from: 'companies', // Tên collection của công ty
-                    localField: 'companyId', // Trường reference từ Job đến Company
-                    foreignField: '_id', // Trường _id của Company để nối
+                    from: 'companies', 
+                    localField: 'companyId', 
+                    foreignField: '_id', 
                     as: 'companyDetails'
                 }
             },
             {
-                $unwind: '$companyDetails' // Tách mảng companyDetails để dễ xử lý
+                $unwind: '$companyDetails' 
             },
             // {
             //     $project: {
@@ -127,7 +127,7 @@ const filterJobByLocation = async (req, res) => {
             //     }
             // }
         ]);
-        res.status(200).json(jobs); // Trả về danh sách công việc
+        res.status(200).json(jobs); 
     } catch (error) {
         res.status(500).json({ message: 'Error fetching job listings', error });
     }
@@ -160,19 +160,19 @@ const filterJobBySalary = async (req, res) => {
         const jobs = await Job.aggregate([
             {
                 $match: {
-                    salary: { $gte: minSalary, $lte: maxSalary } // Lọc theo khoảng lương
+                    salary: { $gte: minSalary, $lte: maxSalary } // loc theo khoang luong
                 }
             },
             {
                 $lookup: {
-                    from: 'companies', // Tên collection của công ty
-                    localField: 'companyId', // Trường reference từ Job đến Company
-                    foreignField: '_id', // Trường _id của Company để nối
+                    from: 'companies', 
+                    localField: 'companyId', 
+                    foreignField: '_id',
                     as: 'companyDetails'
                 }
             },
             {
-                $unwind: '$companyDetails' // Tách mảng companyDetails để dễ xử lý
+                $unwind: '$companyDetails' 
             },
             // {
             //     $project: {
@@ -205,14 +205,14 @@ const filterJobByExperience = async (req, res) => {
             },
             {
                 $lookup: {
-                    from: 'companies', // Tên collection của công ty
-                    localField: 'companyId', // Trường reference từ Job đến Company
-                    foreignField: '_id', // Trường _id của Company để nối
+                    from: 'companies',
+                    localField: 'companyId', 
+                    foreignField: '_id',
                     as: 'companyDetails'
                 }
             },
             {
-                $unwind: '$companyDetails' // Tách mảng companyDetails để dễ xử lý
+                $unwind: '$companyDetails' 
             },
             // {
             //     $project: {
@@ -224,7 +224,7 @@ const filterJobByExperience = async (req, res) => {
             //     }
             // }
         ]);
-        res.status(200).json(jobs); // Trả về danh sách công việc
+        res.status(200).json(jobs);
     } catch (error) {
         res.status(500).json({ message: 'Error fetching job listings', error });
     }
@@ -240,30 +240,30 @@ const filterJobByProfession = async (req, res) => {
         const jobs = await Job.aggregate([
             {
                 $lookup: {
-                    from: 'professions', // Tên collection professions
-                    localField: 'professionId', // Trường reference từ Job đến Profession
-                    foreignField: '_id', // Trường _id của Profession để nối
-                    as: 'professionDetails' // Tên mảng kết quả
+                    from: 'professions', 
+                    localField: 'professionId', 
+                    foreignField: '_id', 
+                    as: 'professionDetails' 
                 }
             },
             {
-                $unwind: '$professionDetails' // Tách mảng professionDetails để dễ xử lý
+                $unwind: '$professionDetails'
             },
             {
                 $match: {
-                    'professionDetails.name': selectedProfession // Lọc theo profession name
+                    'professionDetails.name': selectedProfession 
                 }
             },
             {
                 $lookup: {
-                    from: 'companies', // Tên collection của công ty
-                    localField: 'companyId', // Trường reference từ Job đến Company
-                    foreignField: '_id', // Trường _id của Company để nối
+                    from: 'companies', 
+                    localField: 'companyId', 
+                    foreignField: '_id', 
                     as: 'companyDetails'
                 }
             },
             {
-                $unwind: '$companyDetails' // Tách mảng companyDetails để dễ xử lý
+                $unwind: '$companyDetails' 
             },
             // {
             //     $project: {
@@ -272,12 +272,12 @@ const filterJobByProfession = async (req, res) => {
             //         'companyLogo': '$companyDetails.logo',
             //         'salary': 1,
             //         'province_city': 1,
-            //         'profession': '$professionDetails.name' // Thêm trường profession vào kết quả
+            //         'profession': '$professionDetails.name' 
             //     }
             // }
         ]);
 
-        res.status(200).json(jobs); // Trả về danh sách công việc
+        res.status(200).json(jobs); 
     } catch (error) {
         res.status(500).json({ message: 'Error fetching job listings', error });
     }
@@ -293,7 +293,7 @@ const searchJob = async (req, res) => {
         query.title = { $regex: new RegExp(position, 'i') }; // Tim theo title
     }
     if (city && city !== 'All provinces/cities') {
-        query.province_city = city; // search theo tinh thanh php
+        query.province_city = city; // search theo tinh thanh phoos
     }
     if (category && category !== 'All professions') {
         const profession = await Profession.findOne({ name: category });
@@ -302,15 +302,15 @@ const searchJob = async (req, res) => {
         }
     }
     try {
-        // Sử dụng lookup để lấy thông tin công ty
+        // sd lookup lay tt cty
         const jobs = await Job.aggregate([
-            { $match: query }, // Lọc theo query
+            { $match: query }, // loc theo query
             {
                 $lookup: {
-                    from: 'companies', // Tên collection của Company
-                    localField: 'companyId', // Trường trong Job
-                    foreignField: '_id', // Trường trong Company
-                    as: 'companyDetails' // Tên field mới chứa thông tin công ty
+                    from: 'companies', 
+                    localField: 'companyId', 
+                    foreignField: '_id', 
+                    as: 'companyDetails' 
                 }
             },
             {
@@ -340,4 +340,53 @@ const getExperienceLevel = (experience) => {
     return experienceLevels[experience] || 0;
 };
 
-module.exports = { createJob, jobList, getJob_CompanyList, createCompany, searchJob, filterJobByLocation, filterJobBySalary, filterJobByExperience, filterJobByProfession };
+// lay danh sach top company:
+const getTopCompanies = async (req, res) => {
+    try {
+      const topCompanies = await Job.aggregate([
+        {
+          $group: {
+            _id: "$companyId",
+            totalJobs: { $count: {} } 
+          }
+        },
+        {
+          $sort: { totalJobs: -1 } 
+        },
+        {
+          $limit: 10
+        },
+        {
+          $lookup: {
+            from: "companies",
+            localField: "_id", 
+            foreignField: "_id",
+            as: "companyDetails"
+          }
+        },
+        {
+          $unwind: "$companyDetails"
+        },
+        {
+          $project: {
+            _id: 0, 
+            companyId: "$companyDetails._id", 
+            name: "$companyDetails.name",
+            logo: "$companyDetails.logo",
+            website: "$companyDetails.website",
+            number_of_employee: "$companyDetails.number_of_employee",
+            introduction: "$companyDetails.introduction",
+            location: "$companyDetails.location",
+            totalJobs: 1
+          }
+        }
+      ]);
+  
+      res.status(200).json(topCompanies);
+    } catch (error) {
+      console.error("Error fetching top companies:", error);
+      res.status(500).json({ message: "Server error" });
+    }
+  };
+
+module.exports = { createJob, jobList, getJob_CompanyList, createCompany, searchJob, filterJobByLocation, filterJobBySalary, filterJobByExperience, filterJobByProfession, getTopCompanies };

@@ -1,6 +1,6 @@
 const express = require('express');
 const Job = require('../models/Job');
-const {createJob, jobList, getJob_CompanyList, createCompany, searchJob, filterJobByLocation, filterJobBySalary, filterJobByExperience, filterJobByProfession} = require('../controllers/recruiterController');
+const {createJob, jobList, getJob_CompanyList, createCompany, searchJob, filterJobByLocation, filterJobBySalary, filterJobByExperience, filterJobByProfession, getTopCompanies} = require('../controllers/recruiterController');
 
 const recruiterRouter = express.Router();
 
@@ -30,5 +30,8 @@ recruiterRouter.get('/filterByExperience', filterJobByExperience);
 
 //filter job theo chuyen nganh profession:
 recruiterRouter.get('/filterByProfession', filterJobByProfession);
+
+// get top company:
+recruiterRouter.get('/top-companies', getTopCompanies);
 
 module.exports = recruiterRouter;
