@@ -1,6 +1,6 @@
 const express = require('express');
 const Job = require('../models/Job');
-const {createJob, jobList, getJob_CompanyList, createCompany, searchJob, filterJobByLocation, filterJobBySalary, filterJobByExperience, filterJobByProfession, getJobsByEmployerId, getUnacceptedPublicJobs, getAcceptedPublicJobs, getJobById, updateJob, deleteJob} = require('../controllers/recruiterController');
+const {createJob, jobList, getJob_CompanyList, createCompany, searchJob, filterJobByLocation, filterJobBySalary, filterJobByExperience, filterJobByProfession, getTopCompanies, getJobById, updateJob, deleteJob, getJobsByEmployerId, getAcceptedPublicJobs, getUnacceptedPublicJobs, getApplicationByJob} = require('../controllers/recruiterController');
 
 const recruiterRouter = express.Router();
 
@@ -12,6 +12,7 @@ recruiterRouter.delete('/job/:id', deleteJob);
 recruiterRouter.get('/jobs/employer/:employerId', getJobsByEmployerId);
 recruiterRouter.get('/jobs/no-public', getUnacceptedPublicJobs)
 recruiterRouter.get('/jobs/public', getAcceptedPublicJobs)
+recruiterRouter.get('/applications/job/:jobId', getApplicationByJob)
 
 // route tao moi mot company:
 recruiterRouter.post('/company/create', createCompany);
@@ -36,5 +37,8 @@ recruiterRouter.get('/filterByExperience', filterJobByExperience);
 
 //filter job theo chuyen nganh profession:
 recruiterRouter.get('/filterByProfession', filterJobByProfession);
+
+// get top company:
+recruiterRouter.get('/top-companies', getTopCompanies);
 
 module.exports = recruiterRouter;

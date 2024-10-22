@@ -2,6 +2,7 @@ const Job = require("../models/Job");
 const Company = require("../models/Company");
 const Profession = require("../models/Profession");
 const recruiterRouter = require("../routes/recruiterRouter");
+const Application = require("../models/Application");
 
 // tao moi mot tin tuyen dung
 const createJob = async (req, res) => {
@@ -78,16 +79,16 @@ const getJobById = async (req, res) => {
 
     try {
         // Find the job by ID
-        const job = await Job.findById(id)
+        const job = await Job.findById(id);
 
         if (!job) {
-            return res.status(404).json({ message: 'Job not found' });
+            return res.status(404).json({ message: "Job not found" });
         }
 
         return res.status(200).json({ job });
     } catch (error) {
         console.error("Error fetching job by ID:", error);
-        return res.status(500).json({ message: 'Server error', error });
+        return res.status(500).json({ message: "Server error", error });
     }
 };
 
@@ -99,17 +100,23 @@ const updateJob = async (req, res) => {
         // Find the job by ID and update it
         const updatedJob = await Job.findByIdAndUpdate(id, updatedData, {
             new: true, // Return the updated document
-            runValidators: true // Validate the update against the schema
+            runValidators: true, // Validate the update against the schema
         });
 
         if (!updatedJob) {
-            return res.status(404).json({ message: 'Job not found' });
+            return res.status(404).json({ message: "Job not found" });
         }
 
-        res.status(200).json({ message: 'Job updated successfully', job: updatedJob });
+        res.status(200).json({
+            message: "Job updated successfully",
+            job: updatedJob,
+        });
     } catch (error) {
         console.error(error);
-        res.status(500).json({ message: 'Error updating job', error: error.message });
+        res.status(500).json({
+            message: "Error updating job",
+            error: error.message,
+        });
     }
 };
 
@@ -173,10 +180,12 @@ const getJobsByEmployerId = async (req, res) => {
 
     try {
         // Find jobs where employerId matches the provided employerId
-        const jobs = await Job.find({ employerId: employerId })
+        const jobs = await Job.find({ employerId: employerId });
 
         if (!jobs || jobs.length === 0) {
-            return res.status(404).json({ message: "No jobs found for this employer." });
+            return res
+                .status(404)
+                .json({ message: "No jobs found for this employer." });
         }
 
         return res.status(200).json(jobs);
@@ -192,14 +201,14 @@ const getJob_CompanyList = async (req, res) => {
         const jobs = await Job.aggregate([
             {
                 $lookup: {
-                    from: "companies", // Tên collection của công ty
-                    localField: "companyId", // Trường reference từ Job đến Company
-                    foreignField: "_id", // Trường _id của Company để nối
+                    from: "companies",
+                    localField: "companyId",
+                    foreignField: "_id",
                     as: "companyDetails",
                 },
             },
             {
-                $unwind: "$companyDetails", // Tách mảng companyDetails để dễ xử lý
+                $unwind: "$companyDetails",
             },
             // {
             //     $project: {
@@ -235,14 +244,14 @@ const filterJobByLocation = async (req, res) => {
             },
             {
                 $lookup: {
-                    from: "companies", // Tên collection của công ty
-                    localField: "companyId", // Trường reference từ Job đến Company
-                    foreignField: "_id", // Trường _id của Company để nối
+                    from: "companies",
+                    localField: "companyId",
+                    foreignField: "_id",
                     as: "companyDetails",
                 },
             },
             {
-                $unwind: "$companyDetails", // Tách mảng companyDetails để dễ xử lý
+                $unwind: "$companyDetails",
             },
             // {
             //     $project: {
@@ -254,7 +263,7 @@ const filterJobByLocation = async (req, res) => {
             //     }
             // }
         ]);
-        res.status(200).json(jobs); // Trả về danh sách công việc
+        res.status(200).json(jobs);
     } catch (error) {
         res.status(500).json({ message: "Error fetching job listings", error });
     }
@@ -289,19 +298,19 @@ const filterJobBySalary = async (req, res) => {
         const jobs = await Job.aggregate([
             {
                 $match: {
-                    salary: { $gte: minSalary, $lte: maxSalary }, // Lọc theo khoảng lương
+                    salary: { $gte: minSalary, $lte: maxSalary }, // loc theo khoang luong
                 },
             },
             {
                 $lookup: {
-                    from: "companies", // Tên collection của công ty
-                    localField: "companyId", // Trường reference từ Job đến Company
-                    foreignField: "_id", // Trường _id của Company để nối
+                    from: "companies",
+                    localField: "companyId",
+                    foreignField: "_id",
                     as: "companyDetails",
                 },
             },
             {
-                $unwind: "$companyDetails", // Tách mảng companyDetails để dễ xử lý
+                $unwind: "$companyDetails",
             },
             // {
             //     $project: {
@@ -336,14 +345,14 @@ const filterJobByExperience = async (req, res) => {
             },
             {
                 $lookup: {
-                    from: "companies", // Tên collection của công ty
-                    localField: "companyId", // Trường reference từ Job đến Company
-                    foreignField: "_id", // Trường _id của Company để nối
+                    from: "companies",
+                    localField: "companyId",
+                    foreignField: "_id",
                     as: "companyDetails",
                 },
             },
             {
-                $unwind: "$companyDetails", // Tách mảng companyDetails để dễ xử lý
+                $unwind: "$companyDetails",
             },
             // {
             //     $project: {
@@ -355,7 +364,7 @@ const filterJobByExperience = async (req, res) => {
             //     }
             // }
         ]);
-        res.status(200).json(jobs); // Trả về danh sách công việc
+        res.status(200).json(jobs);
     } catch (error) {
         res.status(500).json({ message: "Error fetching job listings", error });
     }
@@ -373,30 +382,30 @@ const filterJobByProfession = async (req, res) => {
         const jobs = await Job.aggregate([
             {
                 $lookup: {
-                    from: "professions", // Tên collection professions
-                    localField: "professionId", // Trường reference từ Job đến Profession
-                    foreignField: "_id", // Trường _id của Profession để nối
-                    as: "professionDetails", // Tên mảng kết quả
+                    from: "professions",
+                    localField: "professionId",
+                    foreignField: "_id",
+                    as: "professionDetails",
                 },
             },
             {
-                $unwind: "$professionDetails", // Tách mảng professionDetails để dễ xử lý
+                $unwind: "$professionDetails",
             },
             {
                 $match: {
-                    "professionDetails.name": selectedProfession, // Lọc theo profession name
+                    "professionDetails.name": selectedProfession,
                 },
             },
             {
                 $lookup: {
-                    from: "companies", // Tên collection của công ty
-                    localField: "companyId", // Trường reference từ Job đến Company
-                    foreignField: "_id", // Trường _id của Company để nối
+                    from: "companies",
+                    localField: "companyId",
+                    foreignField: "_id",
                     as: "companyDetails",
                 },
             },
             {
-                $unwind: "$companyDetails", // Tách mảng companyDetails để dễ xử lý
+                $unwind: "$companyDetails",
             },
             // {
             //     $project: {
@@ -405,12 +414,12 @@ const filterJobByProfession = async (req, res) => {
             //         'companyLogo': '$companyDetails.logo',
             //         'salary': 1,
             //         'province_city': 1,
-            //         'profession': '$professionDetails.name' // Thêm trường profession vào kết quả
+            //         'profession': '$professionDetails.name'
             //     }
             // }
         ]);
 
-        res.status(200).json(jobs); // Trả về danh sách công việc
+        res.status(200).json(jobs);
     } catch (error) {
         res.status(500).json({ message: "Error fetching job listings", error });
     }
@@ -426,7 +435,7 @@ const searchJob = async (req, res) => {
         query.title = { $regex: new RegExp(position, "i") }; // Tim theo title
     }
     if (city && city !== "All provinces/cities") {
-        query.province_city = city; // search theo tinh thanh php
+        query.province_city = city; // search theo tinh thanh phoos
     }
     if (category && category !== "All professions") {
         const profession = await Profession.findOne({ name: category });
@@ -435,15 +444,15 @@ const searchJob = async (req, res) => {
         }
     }
     try {
-        // Sử dụng lookup để lấy thông tin công ty
+        // sd lookup lay tt cty
         const jobs = await Job.aggregate([
-            { $match: query }, // Lọc theo query
+            { $match: query }, // loc theo query
             {
                 $lookup: {
-                    from: "companies", // Tên collection của Company
-                    localField: "companyId", // Trường trong Job
-                    foreignField: "_id", // Trường trong Company
-                    as: "companyDetails", // Tên field mới chứa thông tin công ty
+                    from: "companies",
+                    localField: "companyId",
+                    foreignField: "_id",
+                    as: "companyDetails",
                 },
             },
             {
@@ -471,6 +480,73 @@ const getExperienceLevel = (experience) => {
         ">5 years": 5,
     };
     return experienceLevels[experience] || 0;
+};
+
+// lay danh sach top company:
+const getTopCompanies = async (req, res) => {
+    try {
+        const topCompanies = await Job.aggregate([
+            {
+                $group: {
+                    _id: "$companyId",
+                    totalJobs: { $count: {} },
+                },
+            },
+            {
+                $sort: { totalJobs: -1 },
+            },
+            {
+                $limit: 10,
+            },
+            {
+                $lookup: {
+                    from: "companies",
+                    localField: "_id",
+                    foreignField: "_id",
+                    as: "companyDetails",
+                },
+            },
+            {
+                $unwind: "$companyDetails",
+            },
+            {
+                $project: {
+                    _id: 0,
+                    companyId: "$companyDetails._id",
+                    name: "$companyDetails.name",
+                    logo: "$companyDetails.logo",
+                    website: "$companyDetails.website",
+                    number_of_employee: "$companyDetails.number_of_employee",
+                    introduction: "$companyDetails.introduction",
+                    location: "$companyDetails.location",
+                    totalJobs: 1,
+                },
+            },
+        ]);
+
+        res.status(200).json(topCompanies);
+    } catch (error) {
+        console.error("Error fetching top companies:", error);
+        res.status(500).json({ message: "Server error" });
+    }
+};
+
+const deleteJob = async (req, res) => {
+    const jobId = req.params.id;
+    try {
+        // Find and delete the job
+        const deletedJob = await Job.findByIdAndDelete(jobId);
+        if (!deletedJob) {
+            return res.status(404).json({ message: "Job not found" });
+        }
+        res.status(200).json({
+            message: "Job deleted successfully",
+            deletedJob,
+        });
+    } catch (error) {
+        console.error("Error deleting job:", error);
+        res.status(500).json({ message: "Server error" });
+    }
 };
 
 const getUnacceptedPublicJobs = async (req, res) => {
@@ -509,26 +585,32 @@ const getAcceptedPublicJobs = async (req, res) => {
     }
 };
 
-const deleteJob = async (req, res) => {
-    const jobId = req.params.id;
+const getApplicationByJob = async (req, res) => {
+    const jobId = req.params.jobId;
 
     try {
-        // Find and delete the job
-        const deletedJob = await Job.findByIdAndDelete(jobId);
+        // Find applications where the jobId matches
+        const applications = await Application.find({ jobId: jobId })
 
-        if (!deletedJob) {
-            return res.status(404).json({ message: 'Job not found' });
+        if (!applications || applications.length === 0) {
+            return res.status(404).json({ message: 'No applications found for this job' });
         }
 
-        res.status(200).json({ message: 'Job deleted successfully', deletedJob });
+        res.status(200).json({ applications });
     } catch (error) {
-        console.error('Error deleting job:', error);
+        console.error('Error fetching applications:', error);
         res.status(500).json({ message: 'Server error' });
     }
-}
+};
 
 module.exports = {
     createJob,
+    getJobById,
+    getExperienceLevel,
+    getExperienceLevel,
+    deleteJob,
+    getJobsByEmployerId,
+    updateJob,
     jobList,
     getJob_CompanyList,
     createCompany,
@@ -537,10 +619,8 @@ module.exports = {
     filterJobBySalary,
     filterJobByExperience,
     filterJobByProfession,
-    getJobsByEmployerId,
+    getTopCompanies,
     getUnacceptedPublicJobs,
     getAcceptedPublicJobs,
-    getJobById,
-    updateJob,
-    deleteJob
+    getApplicationByJob
 };
