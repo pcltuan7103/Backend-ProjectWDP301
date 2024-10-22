@@ -1,6 +1,6 @@
 const express = require("express");
 const authorize = require("../middlewares/authorize");
-const { getProfileUser, updateUser, createReport, applyJob, markFavorite, getFavorite, deleteFavorite, getJob_updateTime, addFeedback } = require("../controllers/userController");
+const { getProfileUser, updateUser, createReport, applyJob, markFavorite, getFavorite, deleteFavorite, getJob_updateTime, addFeedback, getNoficationByUser, setNoficationRead } = require("../controllers/userController");
 const User = require("../models/User");
 const multer = require('multer');
 const upload = multer({ storage: multer.memoryStorage() });
@@ -30,5 +30,9 @@ routerApi.get('/job-stats', getJob_updateTime);
 
 //feedback
 routerApi.post('/feedback', addFeedback);
+
+routerApi.get('/nofication/:userId', getNoficationByUser)
+
+routerApi.post('/read/:userId', setNoficationRead)
 
 module.exports = routerApi;

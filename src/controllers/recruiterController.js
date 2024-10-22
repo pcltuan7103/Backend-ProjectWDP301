@@ -3,6 +3,7 @@ const Company = require("../models/Company");
 const Profession = require("../models/Profession");
 const recruiterRouter = require("../routes/recruiterRouter");
 const Application = require("../models/Application");
+const Notification = require('../models/Nofication');
 
 // tao moi mot tin tuyen dung
 const createJob = async (req, res) => {
@@ -603,6 +604,47 @@ const getApplicationByJob = async (req, res) => {
     }
 };
 
+const acceptApplication = async (req, res) => {
+    const applicationId = req.params.id;
+    const { userId } = req.body; // Assume userId comes from the request body
+
+    try {
+        // Find the application
+        const application = await Application.findById(applicationId);
+        if (!application) return res.status(404).json({ error: "Application not found" });
+
+        // Send notification to the user
+        const message = `Your application for job ${application.jobId} has been accepted.`;
+        await Notification.create({ userId: application.userId, message });
+
+        return res.status(200).json({ message: 'Application accepted and notification sent.' });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ error: "Failed to accept application" });
+    }
+};
+
+// Reject application and send notification
+const rejectApplication = async (req, res) => {
+    const applicationId = req.params.id;
+    const { userId } = req.body; // Assume userId comes from the request body
+
+    try {
+        // Find the application
+        const application = await Application.findById(applicationId);
+        if (!application) return res.status(404).json({ error: "Application not found" });
+
+        // Send notification to the user
+        const message = `Your application for job ${application.jobId} has been rejected.`;
+        await Notification.create({ userId: application.userId, message });
+
+        return res.status(200).json({ message: 'Application rejected and notification sent.' });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ error: "Failed to reject application" });
+    }
+};
+
 module.exports = {
     createJob,
     getJobById,
@@ -622,5 +664,7 @@ module.exports = {
     getTopCompanies,
     getUnacceptedPublicJobs,
     getAcceptedPublicJobs,
-    getApplicationByJob
+    getApplicationByJob,
+    acceptApplication,
+    rejectApplication
 };

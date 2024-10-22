@@ -1,6 +1,6 @@
 const express = require('express');
 const Job = require('../models/Job');
-const {createJob, jobList, getJob_CompanyList, createCompany, searchJob, filterJobByLocation, filterJobBySalary, filterJobByExperience, filterJobByProfession, getTopCompanies, getJobById, updateJob, deleteJob, getJobsByEmployerId, getAcceptedPublicJobs, getUnacceptedPublicJobs, getApplicationByJob} = require('../controllers/recruiterController');
+const {createJob, jobList, getJob_CompanyList, createCompany, searchJob, filterJobByLocation, filterJobBySalary, filterJobByExperience, filterJobByProfession, getTopCompanies, getJobById, updateJob, deleteJob, getJobsByEmployerId, getAcceptedPublicJobs, getUnacceptedPublicJobs, getApplicationByJob, acceptApplication, rejectApplication} = require('../controllers/recruiterController');
 
 const recruiterRouter = express.Router();
 
@@ -40,5 +40,11 @@ recruiterRouter.get('/filterByProfession', filterJobByProfession);
 
 // get top company:
 recruiterRouter.get('/top-companies', getTopCompanies);
+
+// Route to accept the application
+recruiterRouter.post('/application/:id/accept', acceptApplication);
+
+// Route to reject the application
+recruiterRouter.post('/application/:id/reject', rejectApplication);
 
 module.exports = recruiterRouter;

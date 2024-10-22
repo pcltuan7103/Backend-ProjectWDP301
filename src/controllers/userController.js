@@ -1,5 +1,6 @@
-const { getProfileUserService, updateUserService, } = require("../services/userService");
+const { getProfileUserService, } = require("../services/userService");
 const Application = require('../models/Application');
+const Notification = require('../models/Nofication');
 const User = require("../models/User");
 const Report = require('../models/Report');
 const Favorite = require('../models/Favorite');
@@ -199,4 +200,31 @@ const addFeedback = async (req, res) => {
   }
 };
 
-module.exports = { getProfileUser, updateUser, createReport, applyJob, markFavorite, getFavorite, deleteFavorite, getJob_updateTime, addFeedback };
+const getNoficationByUser = async (req, res) => {
+  const { userId } = req.params;
+
+  try {
+      const notifications = await Notification.find({ userId }).sort({ createdAt: -1 }); // Sort by latest notifications
+      res.status(200).json(notifications);
+  } catch (error) {
+      console.error("Error fetching notifications:", error);
+      res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+const setNoficationRead = async (req, res) => {
+  const { userId } = req.params;
+
+  try {
+      await Notification.updateMany(
+          { userId, isRead: false },
+          { $set: { isRead: true } }
+      );
+      res.status(200).json({ message: "Notifications marked as read" });
+  } catch (error) {
+      console.error("Error updating notification status:", error);
+      res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+module.exports = { setNoficationRead, getNoficationByUser, getProfileUser, updateUser, createReport, applyJob, markFavorite, getFavorite, deleteFavorite, getJob_updateTime, addFeedback };
