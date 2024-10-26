@@ -7,15 +7,21 @@ const {
   getAccount,
   logout,
   registerAdmin,
+  sendOtpUser,
+  verifyOtpAndRegisterUser,
+  sendOtpEmployer,
+  verifyOtpAndRegisterEmployer,
 } = require("../controllers/authController");
 const authorize = require("../middlewares/authorize");
 
 const routerApi = express.Router();
 
-routerApi.post("/register-user", registerUser);
+routerApi.post("/send-otp-user", sendOtpUser);
+routerApi.post("/verify-otp-user", verifyOtpAndRegisterUser);
+routerApi.post("/send-otp-employer", sendOtpEmployer);
+routerApi.post("/verify-otp-employer", verifyOtpAndRegisterEmployer);
 routerApi.post("/register-admin", registerAdmin);
 routerApi.post("/login", login);
-routerApi.post("/register-employer", registerEmployer);
 routerApi.post("/refresh-token", refreshToken);
 routerApi.post("/logout", logout);
 routerApi.get("/account", authorize("user"), getAccount);
