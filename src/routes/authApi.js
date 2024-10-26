@@ -15,6 +15,7 @@ const {
   resetPassword,
   sendOtpForForgotPassword,
   forgotPassword,
+  sendOtpResetPassword,
 } = require("../controllers/authController");
 const authorize = require("../middlewares/authorize");
 
@@ -25,6 +26,7 @@ routerApi.post("/verify-otp-user", verifyOtpAndRegisterUser);
 routerApi.post("/send-otp-employer", sendOtpEmployer);
 routerApi.post("/verify-otp-employer", verifyOtpAndRegisterEmployer);
 routerApi.post("/send-otp-forgot", sendOtpForForgotPassword);
+routerApi.post("/send-otp-reset", sendOtpResetPassword)
 routerApi.post("/forgot-password", forgotPassword);
 routerApi.post("/register-admin", registerAdmin);
 routerApi.post("/login", login);

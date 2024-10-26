@@ -316,6 +316,44 @@ const forgotPassword = async (req, res) => {
     }
 };
 
+const sendOtpResetPassword = async (req, res) => {
+    console.log("Received body:", req.body); // Log the entire request body
+    const { email, password } = req.body;
+
+    try {
+        // Check if the user exists
+        const user = await User.findOne({ email });
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        const isMatch = await bcrypt.compare(password, user.password);
+        if (!isMatch) {
+            return res.status(401).json({ message: "Incorrect Password" });
+        }
+
+        // Generate OTP
+        const otp = Math.floor(100000 + Math.random() * 900000).toString();
+        otpStore.set(email, { otp, expires: Date.now() + 10 * 60 * 1000 }); // OTP valid for 10 minutes
+
+        // Send OTP via email
+        const mailOptions = {
+            from: "your-email@gmail.com",
+            to: email,
+            subject: "Password Reset OTP",
+            text: `Your OTP for password reset is ${otp}`,
+        };
+
+        await transporter.sendMail(mailOptions);
+        res.status(200).json({ message: "OTP sent to email", status: 200 });
+    } catch (error) {
+        console.error("Error sending OTP:", error);
+        res.status(500).json({ message: "Error sending OTP", error: error.message });
+    }
+};
+
+
+
 module.exports = {
     login,
     refreshToken,
@@ -328,4 +366,5 @@ module.exports = {
     verifyOtpAndRegisterEmployer,
     sendOtpForForgotPassword,
     forgotPassword,
+    sendOtpResetPassword
 };
