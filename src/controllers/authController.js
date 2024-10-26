@@ -255,6 +255,67 @@ const getAccount = async (req, res) => {
     res.status(200).json(req.user);
 };
 
+const sendOtpForForgotPassword = async (req, res) => {
+    const { email } = req.body;
+
+    try {
+        // Check if the user exists
+        const user = await User.findOne({ email });
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        // Generate OTP
+        const otp = Math.floor(100000 + Math.random() * 900000).toString();
+        otpStore.set(email, { otp, expires: Date.now() + 10 * 60 * 1000 }); // OTP valid for 10 minutes
+
+        // Send OTP via email (you should replace the mailOptions with your actual email service)
+        const mailOptions = {
+            from: "your-email@gmail.com",
+            to: email,
+            subject: "Password Reset OTP",
+            text: `Your OTP for password reset is ${otp}`,
+        };
+
+        await transporter.sendMail(mailOptions);
+        res.status(200).json({ message: "OTP sent to email", status: 200 });
+    } catch (error) {
+        console.error("Error sending OTP:", error);
+        res.status(500).json({ message: "Error sending OTP", error: error.message });
+    }
+};
+
+const forgotPassword = async (req, res) => {
+    const { email, otp, newPassword } = req.body;
+
+    try {
+        // Validate input fields
+        if (!email || !otp || !newPassword) {
+            return res.status(400).json({ message: "All fields are required" });
+        }
+
+        // Check OTP validity
+        const otpRecord = otpStore.get(email);
+        if (!otpRecord || otpRecord.otp !== otp || otpRecord.expires < Date.now()) {
+            return res.status(400).json({ message: "Invalid or expired OTP" });
+        }
+
+        // Hash the new password
+        const saltRounds = parseInt(process.env.SALT_ROUNDS, 10) || 10;
+        const hashedPassword = await bcrypt.hash(newPassword, saltRounds);
+
+        // Update user's password
+        await User.updateOne({ email }, { password: hashedPassword });
+
+        // Remove the OTP after successful reset
+        otpStore.delete(email);
+        res.status(200).json({ message: "Password reset successful", status: 200 });
+    } catch (error) {
+        console.error("Error resetting password:", error.message);
+        res.status(500).json({ message: "Server error", error: error.message });
+    }
+};
+
 module.exports = {
     login,
     refreshToken,
@@ -264,5 +325,7 @@ module.exports = {
     sendOtpUser,
     sendOtpEmployer,
     verifyOtpAndRegisterUser,
-    verifyOtpAndRegisterEmployer
+    verifyOtpAndRegisterEmployer,
+    sendOtpForForgotPassword,
+    forgotPassword,
 };
