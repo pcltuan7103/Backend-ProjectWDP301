@@ -2,6 +2,7 @@ const { getProfileUserService, } = require("../services/userService");
 const Application = require('../models/Application');
 const Notification = require('../models/Nofication');
 const User = require("../models/User");
+const Role = require("../models/Role");
 const Report = require('../models/Report');
 const Favorite = require('../models/Favorite');
 const Job = require('../models/Job');
@@ -11,6 +12,41 @@ const multer = require('multer');
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
+const getAllUsers = async (req, res) => {
+  try {
+    // Find the "user" role ID
+    const userRole = await Role.findOne({ name: "user" });
+    console.log("User Role:", userRole); // Log to verify user role
+    if (!userRole) {
+      return res.status(404).json({ message: "Role 'user' not found" });
+    }
+
+    // Find all users with this role
+    const users = await User.find({ role: userRole._id });
+    res.status(200).json(users);
+  } catch (error) {
+    console.error("Error in getAllUsers:", error); // Log the error for debugging
+    res.status(500).json({ message: "Error retrieving users with 'user' role", error });
+  }
+};
+
+const getAllEmployers = async (req, res) => {
+  try {
+    // Find the "user" role ID
+    const userRole = await Role.findOne({ name: "employer" });
+    console.log("User Role:", userRole); // Log to verify user role
+    if (!userRole) {
+      return res.status(404).json({ message: "Role 'user' not found" });
+    }
+
+    // Find all users with this role
+    const users = await User.find({ role: userRole._id });
+    res.status(200).json(users);
+  } catch (error) {
+    console.error("Error in getAllUsers:", error); // Log the error for debugging
+    res.status(500).json({ message: "Error retrieving users with 'user' role", error });
+  }
+};
 
 const getProfileUser = async (req, res) => {
   const userId = req.params.id;
@@ -227,4 +263,25 @@ const setNoficationRead = async (req, res) => {
   }
 };
 
-module.exports = { setNoficationRead, getNoficationByUser, getProfileUser, updateUser, createReport, applyJob, markFavorite, getFavorite, deleteFavorite, getJob_updateTime, addFeedback };
+const getUserById = async (req, res) => {
+  try {
+    // Extract the user ID from the request parameters
+    const userId = req.params.id;
+
+    // Find the user by ID and populate the role details
+    const user = await User.findById(userId)
+
+    // Check if the user was found
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Return the found user
+    res.status(200).json(user);
+  } catch (error) {
+    console.error("Error retrieving user by ID:", error);
+    res.status(500).json({ message: "Error retrieving user by ID", error });
+  }
+};
+
+module.exports = { getUserById, getAllEmployers, getAllUsers ,setNoficationRead, getNoficationByUser, getProfileUser, updateUser, createReport, applyJob, markFavorite, getFavorite, deleteFavorite, getJob_updateTime, addFeedback };
