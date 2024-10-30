@@ -1,6 +1,6 @@
 const express = require("express");
 const authorize = require("../middlewares/authorize");
-const { getProfileUser, updateUser, createReport, applyJob, markFavorite, getFavorite, deleteFavorite, getJob_updateTime, addFeedback, getNoficationByUser, setNoficationRead } = require("../controllers/userController");
+const { getProfileUser, updateUser, createReport, applyJob, markFavorite, getFavorite, deleteFavorite, getJob_updateTime, addFeedback, getNoficationByUser, setNoficationRead, getFeedback, saveCV, getCvByUserId, getDetailedCVById } = require("../controllers/userController");
 const User = require("../models/User");
 const multer = require('multer');
 const upload = multer({ storage: multer.memoryStorage() });
@@ -31,8 +31,20 @@ routerApi.get('/job-stats', getJob_updateTime);
 //feedback
 routerApi.post('/feedback', addFeedback);
 
-routerApi.get('/nofication/:userId', getNoficationByUser)
+routerApi.get('/notification/:userId', getNoficationByUser)
 
 routerApi.post('/read/:userId', setNoficationRead)
+
+//fetch fbacks
+routerApi.get('/feedback', getFeedback);
+
+//save cv: 
+routerApi.post('/cv', saveCV);
+
+// danh sach cv theo userid:
+routerApi.get('/cv/user/:userId', getCvByUserId);
+
+// // detail cv by id:
+routerApi.get('/cv/:id', getDetailedCVById);
 
 module.exports = routerApi;

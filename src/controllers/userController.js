@@ -6,6 +6,7 @@ const Report = require('../models/Report');
 const Favorite = require('../models/Favorite');
 const Job = require('../models/Job');
 const Feedback = require('../models/Feedback');
+const CV = require('../models/CV');
 const { mongo } = require("mongoose");
 const multer = require('multer');
 const storage = multer.memoryStorage();
@@ -200,15 +201,26 @@ const addFeedback = async (req, res) => {
   }
 };
 
+//get feedback:
+const getFeedback = async (req, res) => {
+  try {
+    const feedbacks = await Feedback.find();
+    res.status(200).json({ message: 'Fetch feedback successfully!' });
+  } catch (error) {
+    console.error('Error fetching feedback listings!');
+    res.status(500).json(error);
+  };
+};
+
 const getNoficationByUser = async (req, res) => {
   const { userId } = req.params;
 
   try {
-      const notifications = await Notification.find({ userId }).sort({ createdAt: -1 }); // Sort by latest notifications
-      res.status(200).json(notifications);
+    const notifications = await Notification.find({ userId }).sort({ createdAt: -1 }); // Sort by latest notifications
+    res.status(200).json(notifications);
   } catch (error) {
-      console.error("Error fetching notifications:", error);
-      res.status(500).json({ message: "Internal server error" });
+    console.error("Error fetching notifications:", error);
+    res.status(500).json({ message: "Internal server error" });
   }
 };
 
@@ -216,15 +228,74 @@ const setNoficationRead = async (req, res) => {
   const { userId } = req.params;
 
   try {
-      await Notification.updateMany(
-          { userId, isRead: false },
-          { $set: { isRead: true } }
-      );
-      res.status(200).json({ message: "Notifications marked as read" });
+    await Notification.updateMany(
+      { userId, isRead: false },
+      { $set: { isRead: true } }
+    );
+    res.status(200).json({ message: "Notifications marked as read" });
   } catch (error) {
-      console.error("Error updating notification status:", error);
-      res.status(500).json({ message: "Internal server error" });
+    console.error("Error updating notification status:", error);
+    res.status(500).json({ message: "Internal server error" });
   }
 };
 
-module.exports = { setNoficationRead, getNoficationByUser, getProfileUser, updateUser, createReport, applyJob, markFavorite, getFavorite, deleteFavorite, getJob_updateTime, addFeedback };
+// luu cv:
+const saveCV = async (req, res) => {
+  try {
+    const newCV = new CV(req.body);
+    const savedCV = await newCV.save();
+    res.status(201).json({ message: 'CV is saved successfully!' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Failed to save a new CV!' });
+  }
+};
+
+const getCvByUserId = async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    const cvList = await CV.find({ userId });
+
+    if (!cvList || cvList.length === 0) {
+      return res.status(404).json({ message: 'Không tìm thấy CV nào cho userId này' });
+    }
+
+    // Chuyển đổi avatar sang định dạng base64
+    const cvListWithBase64Avatar = cvList.map(cv => {
+      if (cv.personalInfo.avatar && cv.personalInfo.avatar.data) {
+        // Chuyển đổi buffer thành base64
+        const base64Avatar = Buffer.from(cv.personalInfo.avatar.data).toString('base64');
+        return {
+          ...cv.toObject(), // Chuyển đổi Mongoose Document thành Object
+          personalInfo: {
+            ...cv.personalInfo,
+            avatar: `data:image/png;base64,${base64Avatar}` // Định dạng base64
+          }
+        };
+      }
+      return cv; // Nếu không có avatar, trả về CV ban đầu
+    });
+
+    res.status(200).json(cvListWithBase64Avatar);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Đã xảy ra lỗi khi lấy danh sách CV' });
+  }
+};
+
+//detail cv byid
+const getDetailedCVById = async (req, res) => {
+  try {
+      const cv = await CV.findById(req.params.id);
+      if (!cv) {
+          return res.status(404).json({ message: 'CV không tìm thấy' });
+      }
+      res.json(cv);
+  } catch (error) {
+    console.error('Lỗi khi lấy chi tiết CV:', error);
+      res.status(500).json({ message: 'Lỗi khi lấy CV', error });
+  }
+};
+
+module.exports = { setNoficationRead, getNoficationByUser, getProfileUser, updateUser, createReport, applyJob, markFavorite, getFavorite, deleteFavorite, getJob_updateTime, addFeedback, getFeedback, saveCV, getCvByUserId, getDetailedCVById };
