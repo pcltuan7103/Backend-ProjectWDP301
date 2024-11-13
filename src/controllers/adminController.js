@@ -1,3 +1,5 @@
+const Consultation = require('../models/Consultation');
+const Feedback = require('../models/Feedback');
 const Job = require('../models/Job');
 const Profession = require('../models/Profession');
 
@@ -57,4 +59,39 @@ const getListProfession = async(req, res) => {
     }
 };
 
-module.exports = {addProfession, getListProfession, acceptJob};
+//fetch consultations 
+const getConsultations = async(req, res) => {
+    try {
+        const consultations = await Consultation.find();
+        return res.status(200).json(consultations);
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({message: 'Cannot get consultation listings!'});
+    }
+};
+
+// xu li handle cho feedback
+const handleFeedback = async (req, res) => {
+    try {
+        const feedbackId = req.params.id; 
+        const feedback = await Feedback.findByIdAndUpdate(
+            feedbackId,
+            { isHandled: true },
+            { new: true } 
+        );
+
+        if (!feedback) {
+            return res.status(404).json({ message: 'Feedback not found' });
+        }
+
+        res.status(200).json({
+            message: 'Feedback handled successfully',
+            feedback: feedback
+        });
+    } catch (error) {
+        console.error('Error updating feedback:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
+module.exports = {addProfession, getListProfession, acceptJob, getConsultations, handleFeedback};

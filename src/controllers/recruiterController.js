@@ -645,6 +645,19 @@ const rejectApplication = async (req, res) => {
     }
 };
 
+//get list companies
+const getCompanies = async (req, res) => {
+    try {
+        const companies = await Company.find();
+        return res.status(200).json(companies);
+    } catch (error) {
+        console.error(error);
+        return res
+            .status(500)
+            .json({ message: "Cannot get company list from database!" });
+    }
+};
+
 module.exports = {
     createJob,
     getJobById,
@@ -666,5 +679,6 @@ module.exports = {
     getAcceptedPublicJobs,
     getApplicationByJob,
     acceptApplication,
-    rejectApplication
+    rejectApplication,
+    getCompanies
 };

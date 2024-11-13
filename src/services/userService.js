@@ -9,6 +9,15 @@ const getProfileUserService = async (userId) => {
   }
 };
 
+const getProfileUserProfession = async (userId) => {
+  try {
+    const user = await User.findById(userId).populate('professionId');
+    return user;
+  } catch (error) {
+    throw new Error("User not found");
+  }
+};
+
 // Service to update the username by user ID
 const updateUserService = async (userId, newUsername) => {
   try {
@@ -35,4 +44,5 @@ const updateUserService = async (userId, newUsername) => {
 module.exports = {
   getProfileUserService,
   updateUserService,
+  getProfileUserProfession
 };

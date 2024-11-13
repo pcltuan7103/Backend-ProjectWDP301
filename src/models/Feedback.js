@@ -16,7 +16,11 @@ const FeedbackSchema = mongoose.Schema({
     createdAt: {
         type: Date,
         default: Date.now,
-    }
+    },
+    isHandled: {
+        type: Boolean,
+        default: false,
+    },
 });
 
 module.exports = mongoose.model('Feedback', FeedbackSchema);

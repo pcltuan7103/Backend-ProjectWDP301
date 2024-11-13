@@ -1,7 +1,8 @@
-const { getProfileUserService, } = require("../services/userService");
+const { getProfileUserService, getProfileUserProfession } = require("../services/userService");
 const Application = require('../models/Application');
 const Notification = require('../models/Nofication');
 const User = require("../models/User");
+const Role = require("../models/Role");
 const Report = require('../models/Report');
 const Favorite = require('../models/Favorite');
 const Job = require('../models/Job');
@@ -12,10 +13,44 @@ const multer = require('multer');
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
+const getAllUsers = async (req, res) => {
+  try {
+    // Find the "user" role ID
+    const userRole = await Role.findOne({ name: "user" });
+    console.log("User Role:", userRole); // Log to verify user role
+    if (!userRole) {
+      return res.status(404).json({ message: "Role 'user' not found" });
+    }
+
+    // Find all users with this role
+    const users = await User.find({ role: userRole._id });
+    res.status(200).json(users);
+  } catch (error) {
+    console.error("Error in getAllUsers:", error); // Log the error for debugging
+    res.status(500).json({ message: "Error retrieving users with 'user' role", error });
+  }
+};
+
+const getAllEmployers = async (req, res) => {
+  try {
+    // Find the "user" role ID
+    const userRole = await Role.findOne({ name: "employer" });
+    console.log("User Role:", userRole); // Log to verify user role
+    if (!userRole) {
+      return res.status(404).json({ message: "Role 'user' not found" });
+    }
+
+    // Find all users with this role
+    const users = await User.find({ role: userRole._id });
+    res.status(200).json(users);
+  } catch (error) {
+    console.error("Error in getAllUsers:", error); // Log the error for debugging
+    res.status(500).json({ message: "Error retrieving users with 'user' role", error });
+  }
+};
 
 const getProfileUser = async (req, res) => {
   const userId = req.params.id;
-
   try {
     const user = await getProfileUserService(userId);
     if (!user) {
@@ -27,11 +62,24 @@ const getProfileUser = async (req, res) => {
   }
 };
 
+const getUserProfession = async (req, res) => {
+  const userId = req.params.id;
+  try {
+    const user = await getProfileUserProfession(userId);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    res.status(200).json(user);
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching user profession" });
+  }
+};
+
 // Controller to update username by user ID
 const updateUser = async (req, res) => {
   try {
     const userId = req.params.id;
-    const { username } = req.body;
+    const { username, professionId, jobInput  } = req.body;
 
     if (!username) {
       return res.status(400).json({ message: "Username is required" });
@@ -39,7 +87,7 @@ const updateUser = async (req, res) => {
 
     const updatedUser = await User.findByIdAndUpdate(
       userId,
-      { username },
+      { username, professionId, jobInput },
       { new: true, runValidators: true }
     );
 
@@ -50,9 +98,10 @@ const updateUser = async (req, res) => {
     res.status(200).json({
       message: "User updated successfully",
       username: updatedUser.username,
+      professionId: updatedUser.professionId,
     });
   } catch (error) {
-    console.error("Error updating user:", error); // Log full error for debugging
+    console.error("Error updating user:", error); 
     res
       .status(500)
       .json({ message: "Error updating user", error: error.message || error });
@@ -201,15 +250,14 @@ const addFeedback = async (req, res) => {
   }
 };
 
-//get feedback:
 const getFeedback = async (req, res) => {
   try {
     const feedbacks = await Feedback.find();
-    res.status(200).json({ message: 'Fetch feedback successfully!' });
+    res.status(200).json({ feedbacks });
   } catch (error) {
-    console.error('Error fetching feedback listings!');
-    res.status(500).json(error);
-  };
+    console.error('Error fetching feedback listings:', error);
+    res.status(500).json({ message: 'Server error', error });
+  }
 };
 
 const getNoficationByUser = async (req, res) => {
@@ -261,21 +309,23 @@ const getCvByUserId = async (req, res) => {
       return res.status(404).json({ message: 'Không tìm thấy CV nào cho userId này' });
     }
 
-    // Chuyển đổi avatar sang định dạng base64
     const cvListWithBase64Avatar = cvList.map(cv => {
       if (cv.personalInfo.avatar && cv.personalInfo.avatar.data) {
-        // Chuyển đổi buffer thành base64
-        const base64Avatar = Buffer.from(cv.personalInfo.avatar.data).toString('base64');
+        const base64Avatar = cv.personalInfo.avatar.data.toString('base64'); 
+
+        console.log('Base64 Avatar: ', base64Avatar);
+
         return {
-          ...cv.toObject(), // Chuyển đổi Mongoose Document thành Object
+          ...cv.toObject(), 
           personalInfo: {
             ...cv.personalInfo,
-            avatar: `data:image/png;base64,${base64Avatar}` // Định dạng base64
+            avatar: `data:image/png;base64,${base64Avatar}` 
           }
         };
       }
-      return cv; // Nếu không có avatar, trả về CV ban đầu
+      return cv;
     });
+    console.log('CV List with Base64 Avatar: ', cvListWithBase64Avatar);
 
     res.status(200).json(cvListWithBase64Avatar);
   } catch (error) {
@@ -287,15 +337,57 @@ const getCvByUserId = async (req, res) => {
 //detail cv byid
 const getDetailedCVById = async (req, res) => {
   try {
-      const cv = await CV.findById(req.params.id);
-      if (!cv) {
-          return res.status(404).json({ message: 'CV không tìm thấy' });
-      }
-      res.json(cv);
+    const cv = await CV.findById(req.params.id);
+    if (!cv) {
+      return res.status(404).json({ message: 'CV không tìm thấy' });
+    }
+    res.json(cv);
   } catch (error) {
     console.error('Lỗi khi lấy chi tiết CV:', error);
-      res.status(500).json({ message: 'Lỗi khi lấy CV', error });
+    res.status(500).json({ message: 'Lỗi khi lấy CV', error });
   }
 };
 
-module.exports = { setNoficationRead, getNoficationByUser, getProfileUser, updateUser, createReport, applyJob, markFavorite, getFavorite, deleteFavorite, getJob_updateTime, addFeedback, getFeedback, saveCV, getCvByUserId, getDetailedCVById };
+const getUserById = async (req, res) => {
+  try {
+    const userId = req.params.id;
+    const user = await User.findById(userId)
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    res.status(200).json(user);
+  } catch (error) {
+    console.error("Error retrieving user by ID:", error);
+    res.status(500).json({ message: "Error retrieving user by ID", error });
+  }
+};
+
+// xoa cv theo id:
+const deleteCvById = async (req, res) => {
+  try {
+      const cvId = req.params.id;
+      const deletedCV = await CV.findByIdAndDelete(cvId);
+
+      if (!deletedCV) {
+          return res.status(404).json({ message: 'CV không tìm thấy!' });
+      }
+
+      return res.status(200).json({ message: 'CV đã được xóa thành công!' });
+  } catch (error) {
+      console.error(error);
+      return res.status(500).json({ message: 'Lỗi server!' });
+  }
+};
+
+const getApplicationByUserId = async (req, res) => {
+  try {
+      const { userId } = req.params;
+      const applications = await Application.find({ userId }).populate('jobId'); 
+      res.json(applications);
+  } catch (error) {
+      console.error("Lỗi lấy danh sách ứng tuyển:", error);
+      res.status(500).json({ message: "Không thể lấy danh sách ứng tuyển" });
+  }
+};
+
+module.exports = { getAllEmployers, getAllUsers, getUserById, setNoficationRead, getNoficationByUser, getProfileUser, updateUser, createReport, applyJob, markFavorite, getFavorite, deleteFavorite, getJob_updateTime, addFeedback, getFeedback, saveCV, getCvByUserId, getDetailedCVById, deleteCvById, getApplicationByUserId, getUserProfession };
