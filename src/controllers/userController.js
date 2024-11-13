@@ -423,4 +423,4 @@ const toggleUserBlockStatus = async (req, res) => {
   }
 };
 
-module.exports = { getUserById, getAllEmployers, getAllUsers ,setNoficationRead, getNoficationByUser, getProfileUser, updateUser, createReport, applyJob, markFavorite, getFavorite, deleteFavorite, getJob_updateTime, addFeedback, toggleUserBlockStatus, getApplicationByUserId, deleteCvById };
+module.exports = { getUserById, getAllEmployers, getAllUsers ,setNoficationRead, getNoficationByUser, getProfileUser, updateUser, createReport, applyJob, markFavorite, getFavorite, deleteFavorite, getJob_updateTime, addFeedback, toggleUserBlockStatus, getApplicationByUserId, deleteCvById, getUserProfession, getDetailedCVById, saveCV, getCvByUserId, getFeedback};

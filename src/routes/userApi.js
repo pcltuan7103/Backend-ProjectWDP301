@@ -3,6 +3,7 @@ const authorize = require("../middlewares/authorize");
 const { getProfileUser, updateUser, createReport, applyJob, markFavorite, getFavorite, deleteFavorite, getJob_updateTime, addFeedback, getNoficationByUser, setNoficationRead, getFeedback, saveCV, getCvByUserId, getDetailedCVById, getAllUsers, getAllEmployers, getUserById, deleteCvById, getApplicationByUserId, getUserProfession, toggleUserBlockStatus } = require("../controllers/userController");
 const User = require("../models/User");
 const multer = require('multer');
+const { getFeedbackById } = require("../controllers/adminController");
 const upload = multer({ storage: multer.memoryStorage() });
 
 const routerApi = express.Router();
