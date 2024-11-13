@@ -1,7 +1,6 @@
 const Job = require("../models/Job");
 const Company = require("../models/Company");
 const Profession = require("../models/Profession");
-const recruiterRouter = require("../routes/recruiterRouter");
 const Application = require("../models/Application");
 const Notification = require('../models/Nofication');
 
@@ -606,46 +605,118 @@ const getApplicationByJob = async (req, res) => {
     }
 };
 
+// const acceptApplication = async (req, res) => {
+//     const applicationId = req.params.id;
+//     const { userId } = req.body; // Assume userId comes from the request body
+
+//     try {
+//         // Find the application
+//         const application = await Application.findById(applicationId);
+//         if (!application) return res.status(404).json({ error: "Application not found" });
+
+//         // Send notification to the user
+//         const message = `Your application for job ${application.jobId} has been accepted.`;
+//         await Notification.create({ userId: application.userId, message });
+
+//         return res.status(200).json({ message: 'Application accepted and notification sent.' });
+//     } catch (error) {
+//         console.error(error);
+//         return res.status(500).json({ error: "Failed to accept application" });
+//     }
+// };
+
+// // Reject application and send notification
+// const rejectApplication = async (req, res) => {
+//     const applicationId = req.params.id;
+//     const { userId } = req.body; // Assume userId comes from the request body
+
+//     try {
+//         // Find the application
+//         const application = await Application.findById(applicationId);
+//         if (!application) return res.status(404).json({ error: "Application not found" });
+
+//         // Send notification to the user
+//         const message = `Your application for job ${application.jobId} has been rejected.`;
+//         await Notification.create({ userId: application.userId, message });
+
+//         return res.status(200).json({ message: 'Application rejected and notification sent.' });
+//     } catch (error) {
+//         console.error(error);
+//         return res.status(500).json({ error: "Failed to reject application" });
+//     }
+// };
+
 const acceptApplication = async (req, res) => {
-    const applicationId = req.params.id;
-    const { userId } = req.body; // Assume userId comes from the request body
-
     try {
-        // Find the application
-        const application = await Application.findById(applicationId);
-        if (!application) return res.status(404).json({ error: "Application not found" });
+        const { id } = req.params; // Get application ID from request params
 
-        // Send notification to the user
-        const message = `Your application for job ${application.jobId} has been accepted.`;
-        await Notification.create({ userId: application.userId, message });
+        // Update the application status to 'accept'
+        const updatedApplication = await Application.findByIdAndUpdate(
+            id,
+            { status: 'accept' },
+            { new: true } // Return the updated document
+        );
 
-        return res.status(200).json({ message: 'Application accepted and notification sent.' });
+        if (!updatedApplication) {
+            return res.status(404).json({ message: 'Application not found' });
+        }
+
+        // Fetch the job details
+        const job = await Job.findById(updatedApplication.jobId);
+        if (!job) {
+            return res.status(404).json({ message: 'Job not found' });
+        }
+
+        // Create a notification for the user
+        const notification = new Notification({
+            userId: updatedApplication.userId,
+            jobId: updatedApplication.jobId, // Include the jobId in the notification
+            message: `Your application for the job "${job.title}" has been accepted!`, // Include the job title in the message
+        });
+        await notification.save();
+
+        return res.status(200).json(updatedApplication);
     } catch (error) {
         console.error(error);
-        return res.status(500).json({ error: "Failed to accept application" });
+        return res.status(500).json({ message: 'Internal server error' });
     }
-};
+}
 
-// Reject application and send notification
 const rejectApplication = async (req, res) => {
-    const applicationId = req.params.id;
-    const { userId } = req.body; // Assume userId comes from the request body
-
     try {
-        // Find the application
-        const application = await Application.findById(applicationId);
-        if (!application) return res.status(404).json({ error: "Application not found" });
+        const { id } = req.params; // Get application ID from request params
 
-        // Send notification to the user
-        const message = `Your application for job ${application.jobId} has been rejected.`;
-        await Notification.create({ userId: application.userId, message });
+        // Update the application status to 'reject'
+        const updatedApplication = await Application.findByIdAndUpdate(
+            id,
+            { status: 'reject' },
+            { new: true } // Return the updated document
+        );
 
-        return res.status(200).json({ message: 'Application rejected and notification sent.' });
+        if (!updatedApplication) {
+            return res.status(404).json({ message: 'Application not found' });
+        }
+
+        // Fetch the job details
+        const job = await Job.findById(updatedApplication.jobId);
+        if (!job) {
+            return res.status(404).json({ message: 'Job not found' });
+        }
+
+        // Create a notification for the user
+        const notification = new Notification({
+            userId: updatedApplication.userId,
+            jobId: updatedApplication.jobId, // Include the jobId in the notification
+            message: `Your application for the job "${job.title}" has been rejected.`, // Include the job title in the message
+        });
+        await notification.save();
+
+        return res.status(200).json(updatedApplication);
     } catch (error) {
         console.error(error);
-        return res.status(500).json({ error: "Failed to reject application" });
+        return res.status(500).json({ message: 'Internal server error' });
     }
-};
+}
 
 module.exports = {
     createJob,
