@@ -41,11 +41,12 @@ recruiterRouter.get('/filterByProfession', filterJobByProfession);
 // get top company:
 recruiterRouter.get('/top-companies', getTopCompanies);
 
-// Route to accept the application
-recruiterRouter.post('/application/:id/accept', acceptApplication);
+// Route to accept the application (update status to "accept")
+recruiterRouter.put('/application/:id/accept', acceptApplication);
 
-// Route to reject the application
-recruiterRouter.post('/application/:id/reject', rejectApplication);
+// Route to reject the application (update status to "reject")
+recruiterRouter.put('/application/:id/reject', rejectApplication);
+
 
 recruiterRouter.get('/company-list', getCompanies);
 

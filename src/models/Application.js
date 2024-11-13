@@ -18,6 +18,11 @@ const ApplicationSchema = new mongoose.Schema({
         ref: 'Job',
         required: true,
     },
+    status: {
+        type: String,
+        enum: ['pending', 'accept', 'reject'], // Enum to define allowed values
+        default: 'pending' // Default value is 'pending'
+    }
 }, { timestamps: true });
 
 module.exports = mongoose.model('Application', ApplicationSchema);

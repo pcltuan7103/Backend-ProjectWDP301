@@ -13,7 +13,11 @@ const UserSchema = new mongoose.Schema(
     email: {
       type: String,
       required: true,
-      unique: true, 
+      unique: true,
+    },
+    isBlock: {
+      type: Boolean,
+      default: false,
     },
     role: {
       type: mongoose.Schema.Types.ObjectId,

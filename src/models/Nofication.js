@@ -6,6 +6,11 @@ const NotificationSchema = new mongoose.Schema({
         ref: 'User',
         required: true,
     },
+    jobId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Job', // Reference to the Job model
+        required: true,
+    },
     message: {
         type: String,
         required: true,
