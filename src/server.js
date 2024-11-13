@@ -25,7 +25,7 @@ app.use("/v1/api/users", userRoutes);
 app.use("/company/", companyRoutes);
 app.use("/", guestRouter);
 app.use("/", recruiterRouter);
-app.use("/", adminRouter);
+app.use("/v1/api/admin", adminRouter);
 
 (async () => {
     try {

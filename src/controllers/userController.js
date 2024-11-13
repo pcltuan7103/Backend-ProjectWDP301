@@ -284,4 +284,37 @@ const getUserById = async (req, res) => {
   }
 };
 
-module.exports = { getUserById, getAllEmployers, getAllUsers ,setNoficationRead, getNoficationByUser, getProfileUser, updateUser, createReport, applyJob, markFavorite, getFavorite, deleteFavorite, getJob_updateTime, addFeedback };
+const toggleUserBlockStatus = async (req, res) => {
+  const userId = req.params.id;
+
+  try {
+      // Find the user by ID
+      const user = await User.findById(userId);
+
+      if (!user) {
+          return res.status(404).json({ message: "User not found" });
+      }
+
+      // Toggle the isBlock status (flip its current value)
+      user.isBlock = !user.isBlock;
+
+      // Save only the updated field for efficiency
+      await user.save();
+
+      // Return a success response with updated user details
+      return res.status(200).json({
+          message: `User isBlock status updated to ${user.isBlock ? "true" : "false"}`,
+          user: {
+              _id: user._id,
+              username: user.username,
+              email: user.email,
+              isBlock: user.isBlock, // Include the updated status
+          },
+      });
+  } catch (error) {
+      console.error("Error toggling isBlock status:", error);
+      return res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+module.exports = { getUserById, getAllEmployers, getAllUsers ,setNoficationRead, getNoficationByUser, getProfileUser, updateUser, createReport, applyJob, markFavorite, getFavorite, deleteFavorite, getJob_updateTime, addFeedback, toggleUserBlockStatus };

@@ -1,5 +1,7 @@
+const Feedback = require('../models/Feedback');
 const Job = require('../models/Job');
 const Profession = require('../models/Profession');
+const Report = require('../models/Report');
 
 const acceptJob = async (req, res) => {
     const { id } = req.params; // Get the job ID from the request parameters
@@ -57,4 +59,46 @@ const getListProfession = async(req, res) => {
     }
 };
 
-module.exports = {addProfession, getListProfession, acceptJob};
+const getReports = async (req, res) => {
+    try {
+        const reports = await Report.find().populate('jobId'); // populate 'jobId' to include job details
+        res.status(200).json(reports);
+    } catch (error) {
+        res.status(500).json({ message: 'Failed to retrieve reports', error });
+    }
+}
+
+const getReportById = async (req, res) => {
+    try {
+        const report = await Report.findById(req.params.id).populate('jobId');
+        if (!report) {
+            return res.status(404).json({ message: 'Report not found' });
+        }
+        res.status(200).json(report);
+    } catch (error) {
+        res.status(500).json({ message: 'Failed to retrieve report details', error });
+    }
+}
+
+const getFeedbacks = async (req, res) => {
+    try {
+        const feedbacks = await Feedback.find().populate('userId');
+        res.status(200).json(feedbacks);
+    } catch (error) {
+        res.status(500).json({ message: "Failed to retrieve feedback", error });
+    }
+};
+
+const getFeedbackById = async (req, res) => {
+    try {
+        const feedback = await Feedback.findById(req.params.id).populate('userId');
+        if (!feedback) {
+            return res.status(404).json({ message: 'Feedback not found' });
+        }
+        res.status(200).json(feedback);
+    } catch (error) {
+        res.status(500).json({ message: 'Failed to retrieve feedback details', error });
+    }
+}
+
+module.exports = {addProfession, getListProfession, acceptJob, getReports, getReportById, getFeedbacks, getFeedbackById};

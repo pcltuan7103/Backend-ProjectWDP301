@@ -590,8 +590,10 @@ const getApplicationByJob = async (req, res) => {
     const jobId = req.params.jobId;
 
     try {
-        // Find applications where the jobId matches
+        // Find applications where the jobId matches and populate job and user details
         const applications = await Application.find({ jobId: jobId })
+            .populate('jobId', 'title')  // Populate Job's title
+            .populate('userId', 'username'); // Populate User's username
 
         if (!applications || applications.length === 0) {
             return res.status(404).json({ message: 'No applications found for this job' });
